@@ -267,6 +267,7 @@ GameObject:
   - component: {fileID: 1140611207}
   - component: {fileID: 1140611209}
   - component: {fileID: 1140611210}
+  - component: {fileID: 1140611211}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -537,6 +538,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df87560b1a4f481d99671d7411f39e7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1140611211
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1140611204}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8adedfdb0c3045869939db0b19c6a34d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  idleColor:
+    serializedVersion: 2
+    rgba: 4285756275
+  runColor:
+    serializedVersion: 2
+    rgba: 4281163264
+  jumpColor:
+    serializedVersion: 2
+    rgba: 4278190335
+  fallColor:
+    serializedVersion: 2
+    rgba: 4278221311
+  crouchColor:
+    serializedVersion: 2
+    rgba: 4278190080
+  walkColor:
+    serializedVersion: 2
+    rgba: 4281185536
 --- !u!1 &1902014212
 GameObject:
   m_ObjectHideFlags: 0

@@ -7,6 +7,7 @@ namespace Player.PlayerStates
         public override void Enter(PlayerStateMachine context)
         {
             Debug.Log("Walk state");
+            CallStateEnter();
             context.SetCurrentSpeed(context.walkSpeed);
         }
 

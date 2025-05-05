@@ -6,19 +6,19 @@ namespace Player
 {
     public class PlayerStateMachine : MonoBehaviour
     {
-        [field: SerializeField, Range(0, float.MaxValue)]
+        [field: SerializeField, Min(0)]
         public float walkSpeed { get; private set; }
 
-        [field: SerializeField, Range(0, float.MaxValue)]
+        [field: SerializeField, Min(0)]
         public float runSpeed { get; private set; }
 
-        [field: SerializeField, Range(0, float.MaxValue)]
+        [field: SerializeField, Min(0)]
         public float crouchSpeed { get; private set; }
 
-        [field: SerializeField, Range(0, float.MaxValue)]
+        [field: SerializeField, Min(0)]
         public float jumpForce { get; private set; } = 10;
 
-        [field: SerializeField, Range(0, float.MaxValue)]
+        [field: SerializeField, Min(0)]
         public float raycastGroundDistance { get; private set; } = 10;
 
         [field: SerializeField] public float moveSpeedThreshold { get; private set; } = 0.1f;

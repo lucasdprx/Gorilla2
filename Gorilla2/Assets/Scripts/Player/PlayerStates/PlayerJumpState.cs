@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace Player.PlayerStates
@@ -7,6 +8,7 @@ namespace Player.PlayerStates
         public override void Enter(PlayerStateMachine context)
         {
             Debug.Log("Jump state");
+            CallStateEnter();
         }
 
         public override void Update(PlayerStateMachine context)

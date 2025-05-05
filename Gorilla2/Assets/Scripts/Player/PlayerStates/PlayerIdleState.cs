@@ -7,6 +7,7 @@ namespace Player.PlayerStates
         public override void Enter(PlayerStateMachine context)
         {
             Debug.Log("Idle state");
+            CallStateEnter();
         }
 
         public override void Update(PlayerStateMachine context)
