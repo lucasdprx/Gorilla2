@@ -22,6 +22,8 @@ namespace Player
         public float raycastGroundDistance { get; private set; } = 10;
 
         [field: SerializeField] public float moveSpeedThreshold { get; private set; } = 0.1f;
+        [SerializeField] private float jumpGravityScale = 2f;
+        [SerializeField] private float defaultGravityScale = 5f;
         public Rigidbody2D rb { get; private set; }
         public Vector2 moveInput { get; private set; }
         PlayerState currentState;
@@ -43,6 +45,7 @@ namespace Player
         private void Awake()
         {
             rb = GetComponent<Rigidbody2D>();
+            rb.gravityScale = defaultGravityScale;
         }
 
         public void ToggleRun(bool runState)
@@ -60,12 +63,18 @@ namespace Player
             return rb.linearVelocity.y > 0.1f;
         }
 
-        public void Jump()
+        public void StartJump()
         {
             if (IsGrounded())
             {
                 rb.AddForce(Vector2.up * jumpForce);
+                rb.gravityScale = jumpGravityScale;
             }
+        }
+        
+        public void StopJump()
+        {
+            rb.gravityScale = defaultGravityScale;
         }
 
         public bool IsGrounded()

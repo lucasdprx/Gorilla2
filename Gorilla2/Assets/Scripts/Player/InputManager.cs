@@ -53,7 +53,12 @@ namespace Player
         {
             if (ctx.performed)
             {
-                playerStateMachine.Jump();
+                playerStateMachine.StartJump();
+            }
+
+            if (ctx.canceled)
+            {
+                playerStateMachine.StopJump();
             }
         }
     }
