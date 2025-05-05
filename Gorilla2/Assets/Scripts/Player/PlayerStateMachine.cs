@@ -36,6 +36,7 @@ namespace Player
         public bool isRunning { get; private set; }
         public bool isCrouching { get; private set; }
         public float currentSpeed { get; private set; }
+        public bool isTryingJumping { get; private set; }
 
         public void SetCurrentSpeed(float newSpeed)
         {
@@ -61,6 +62,11 @@ namespace Player
         public bool IsJumping()
         {
             return rb.linearVelocity.y > 0.1f;
+        }
+
+        public void TryJump()
+        {
+            isTryingJumping = true;
         }
 
         public void StartJump()
