@@ -21,8 +21,8 @@ public class MapGeneration : MonoBehaviour
     [Header("Parameters Platforms")]
     [SerializeField] private int maxPlatform = 2;
     [SerializeField] private int platformDefaultPointCount = 4;
-    [SerializeField] private float maxRangeSpawn = 3;
-    [SerializeField] private float minRangeSpawn = 2;
+    [SerializeField] private float maxRangeSpawn = 5;
+    [SerializeField] private float minRangeSpawn = 4;
 
     private void Start()
     {
