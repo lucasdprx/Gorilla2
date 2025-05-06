@@ -24,12 +24,8 @@ namespace Player
             playerController.walkState.onStateEnter += () => SetColor(walkColor);
             playerController.sprintState.onStateEnter += () => SetColor(runColor);
             playerController.crouchState.onStateEnter += () => SetColor(crouchColor);
-            /*playerController.playerIdleState.OnStateEnter += () => SetColor(idleColor);
-            playerController.playerRunState.OnStateEnter += () => SetColor(runColor);
-            playerController.playerJumpState.OnStateEnter += () => SetColor(jumpColor);
-            playerController.playerFallState.OnStateEnter += () => SetColor(fallColor);
-            playerController.playerCrouchState.OnStateEnter += () => SetColor(crouchColor);
-            playerController.playerWalkState.OnStateEnter += () => SetColor(walkColor);*/
+            playerController.jumpingState.onStateEnter += () => SetColor(jumpColor);
+            playerController.fallState.onStateEnter += () => SetColor(fallColor);
         }
         
         private void SetColor(Color32 color)

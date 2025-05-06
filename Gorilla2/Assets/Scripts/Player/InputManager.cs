@@ -1,3 +1,4 @@
+using MadeYellow.InputBuffer;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -6,9 +7,16 @@ namespace Player
     public class InputManager : MonoBehaviour
     {
         PlayerController playerController;
+        
+        [SerializeField] private float jumpBufferTime = 0.2f;
+
+        private SimpleInputBuffer startJumpBuffer = new();
+        private SimpleInputBuffer stopJumpBuffer = new();
         private void Awake()
         {
             playerController = GetComponent<PlayerController>();
+            startJumpBuffer = new SimpleInputBuffer(jumpBufferTime);
+            stopJumpBuffer = new SimpleInputBuffer(jumpBufferTime);
         }
 
         public void OnMove(InputAction.CallbackContext ctx)
@@ -55,12 +63,28 @@ namespace Player
         {
             if (ctx.performed)
             {
-                playerController.StartJump();
+                startJumpBuffer.Reset();
+                stopJumpBuffer.Reset();
+                startJumpBuffer.Set();
             }
 
             if (ctx.canceled)
             {
-                playerController.StopJump();
+                stopJumpBuffer.Reset();
+                stopJumpBuffer.Set();
+            }
+        }
+
+        private void Update()
+        {
+            if (startJumpBuffer.hasBuffer && playerController.TryStartJump()) 
+            {
+                startJumpBuffer.Reset();
+            }
+            
+            if (stopJumpBuffer.hasBuffer && !startJumpBuffer.hasBuffer && playerController.TryStopJump()) 
+            {
+                stopJumpBuffer.Reset();
             }
         }
     }
