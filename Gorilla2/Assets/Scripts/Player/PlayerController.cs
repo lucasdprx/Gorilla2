@@ -37,23 +37,24 @@ namespace Player
         public bool isGrounded { get; private set; }
         private float ungroundTime;
         [SerializeField] private LayerMask walkableLayerMask;
+        private Collider2D playerCollider;
 
         private void Awake()
         {
+            playerCollider = GetComponent<Collider2D>();
             rb = GetComponent<Rigidbody2D>();
             rb.gravityScale = defaultGravityScale;
             stateMachine = new StateMachine();
-        }
-
-        private void Start()
-        {
             walkState = new WalkState(this);
             idleState = new IdleState(this);
             sprintState = new SprintState(this);
             crouchState = new CrouchState(this);
             jumpingState = new JumpingState(this);
             fallState = new FallState(this);
+        }
 
+        private void Start()
+        {
             stateMachine.AddAnyTransition(idleState, new FuncPredicate(ReturnToIdle));
             stateMachine.AddTransition(idleState, walkState,
                 new FuncPredicate(() => IsMoving() && isGrounded));
@@ -109,8 +110,8 @@ namespace Player
         private void Update()
         {
             stateMachine.Update();
-            bool isGroundHit = Physics2D.Raycast(transform.position, Vector2.down, raycastGroundDistance,
-                walkableLayerMask);
+            bool isGroundHit = Physics2D.CircleCast(transform.position, playerCollider.bounds.extents.x,
+                Vector2.down, raycastGroundDistance, walkableLayerMask);
             if (isGroundHit)
             {
                 isGrounded = true;
