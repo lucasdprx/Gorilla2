@@ -10,7 +10,7 @@ namespace Player.PlayerStates
         public override void OnEnter()
         {
             base.OnEnter();
-            Debug.Log("Entering Crouch State");
+            //Debug.Log("Entering Crouch State");
             player.SetCurrentSpeed(player.crouchSpeed);
         }
 
