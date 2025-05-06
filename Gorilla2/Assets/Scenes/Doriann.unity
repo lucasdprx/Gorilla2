@@ -309,7 +309,7 @@ MonoBehaviour:
   <jumpForce>k__BackingField: 1000
   <raycastGroundDistance>k__BackingField: 0.6
   <moveSpeedThreshold>k__BackingField: 0.1
-  jumpGravityScale: 4
+  jumpGravityScale: 5
   defaultGravityScale: 10
 --- !u!58 &1140611207
 CircleCollider2D:

@@ -27,6 +27,8 @@ namespace Player
         public WalkState walkState { get; private set; }
         public SprintState sprintState { get; private set; }
         public CrouchState crouchState { get; private set; }
+        public JumpingState jumpingState { get; private set; }
+        public FallState fallState { get; private set; }
         public bool isSprinting { get; private set; }
         public bool isCrouching { get; private set; }
 
@@ -43,6 +45,8 @@ namespace Player
             idleState = new IdleState(this);
             sprintState = new SprintState(this);
             crouchState = new CrouchState(this);
+            jumpingState = new JumpingState(this);
+            fallState = new FallState(this);
             stateMachine.AddAnyTransition(idleState, new FuncPredicate(ReturnToIdle));
             stateMachine.AddTransition(idleState, walkState,
                 new FuncPredicate(() => IsMoving() && IsGrounded()));
@@ -52,6 +56,9 @@ namespace Player
             stateMachine.AddTransition(idleState, crouchState, new FuncPredicate(() => IsMoving() && isCrouching));
             stateMachine.AddTransition(walkState, crouchState, new FuncPredicate(() => IsMoving() && isCrouching));
             stateMachine.AddTransition(crouchState, walkState, new FuncPredicate(() => IsMoving() && !isCrouching));
+            stateMachine.AddTransition(jumpingState, idleState, new FuncPredicate(IsGrounded));
+            stateMachine.AddAnyTransition(jumpingState, new FuncPredicate(IsJumping));
+            stateMachine.AddAnyTransition(fallState, new FuncPredicate(IsFalling));
             stateMachine.SetState(idleState);
         }
 
@@ -103,6 +110,11 @@ namespace Player
         public bool IsJumping()
         {
             return rb.linearVelocity.y > 0.1f;
+        }
+        
+        public bool IsFalling()
+        {
+            return rb.linearVelocity.y < -0.1f;
         }
 
         public void StartJump()

@@ -11,6 +11,7 @@ namespace Player.PlayerStates
         {
             base.OnEnter();
             Debug.Log("Entering Idle State");
+            player.SetCurrentSpeed(player.walkSpeed);
         }
     }
 }
