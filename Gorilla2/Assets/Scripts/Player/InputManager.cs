@@ -5,10 +5,10 @@ namespace Player
 {
     public class InputManager : MonoBehaviour
     {
-        PlayerStateMachine playerStateMachine;
+        PlayerController playerController;
         private void Awake()
         {
-            playerStateMachine = GetComponent<PlayerStateMachine>();
+            playerController = GetComponent<PlayerController>();
         }
 
         public void OnMove(InputAction.CallbackContext ctx)
@@ -17,23 +17,24 @@ namespace Player
             {
                 Vector2 moveInput = ctx.ReadValue<Vector2>();
                 moveInput.y = 0;
-                playerStateMachine.SetMoveInput(moveInput);
+                playerController.SetMoveInput(moveInput);
             }
             else if (ctx.canceled)
             {
-                playerStateMachine.SetMoveInput(Vector2.zero);
+                playerController.SetMoveInput(Vector2.zero);
             }
         }
 
-        public void OnRun(InputAction.CallbackContext ctx)
+        public void OnSprint(InputAction.CallbackContext ctx)
         {
             if (ctx.performed)
             {
-                playerStateMachine.ToggleRun(true);
+                playerController.StartSprint();
             }
-            else if (ctx.canceled)
+
+            if (ctx.canceled)
             {
-                playerStateMachine.ToggleRun(false);
+                playerController.StopSprint();
             }
         }
         
@@ -41,11 +42,12 @@ namespace Player
         {
             if (ctx.performed)
             {
-                playerStateMachine.ToggleCrouch(true);
+                playerController.StartCrouch();
             }
-            else if (ctx.canceled)
+
+            if (ctx.canceled)
             {
-                playerStateMachine.ToggleCrouch(false);
+                playerController.StopCrouch();
             }
         }
         
@@ -53,12 +55,12 @@ namespace Player
         {
             if (ctx.performed)
             {
-                playerStateMachine.StartJump();
+                playerController.StartJump();
             }
 
             if (ctx.canceled)
             {
-                playerStateMachine.StopJump();
+                playerController.StopJump();
             }
         }
     }

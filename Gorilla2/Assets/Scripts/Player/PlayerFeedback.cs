@@ -19,13 +19,17 @@ namespace Player
 
         private void Start()
         {
-            PlayerStateMachine playerStateMachine = GetComponent<PlayerStateMachine>();
-            playerStateMachine.playerIdleState.OnStateEnter += () => SetColor(idleColor);
-            playerStateMachine.playerRunState.OnStateEnter += () => SetColor(runColor);
-            playerStateMachine.playerJumpState.OnStateEnter += () => SetColor(jumpColor);
-            playerStateMachine.playerFallState.OnStateEnter += () => SetColor(fallColor);
-            playerStateMachine.playerCrouchState.OnStateEnter += () => SetColor(crouchColor);
-            playerStateMachine.playerWalkState.OnStateEnter += () => SetColor(walkColor);
+            PlayerController playerController = GetComponent<PlayerController>();
+            playerController.idleState.onStateEnter += () => SetColor(idleColor);
+            playerController.walkState.onStateEnter += () => SetColor(walkColor);
+            playerController.sprintState.onStateEnter += () => SetColor(runColor);
+            playerController.crouchState.onStateEnter += () => SetColor(crouchColor);
+            /*playerController.playerIdleState.OnStateEnter += () => SetColor(idleColor);
+            playerController.playerRunState.OnStateEnter += () => SetColor(runColor);
+            playerController.playerJumpState.OnStateEnter += () => SetColor(jumpColor);
+            playerController.playerFallState.OnStateEnter += () => SetColor(fallColor);
+            playerController.playerCrouchState.OnStateEnter += () => SetColor(crouchColor);
+            playerController.playerWalkState.OnStateEnter += () => SetColor(walkColor);*/
         }
         
         private void SetColor(Color32 color)

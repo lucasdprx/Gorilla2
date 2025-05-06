@@ -304,7 +304,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <walkSpeed>k__BackingField: 5
-  <runSpeed>k__BackingField: 10
+  <sprintSpeed>k__BackingField: 10
   <crouchSpeed>k__BackingField: 2
   <jumpForce>k__BackingField: 1000
   <raycastGroundDistance>k__BackingField: 0.6
@@ -471,7 +471,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1140611210}
         m_TargetAssemblyTypeName: Player.InputManager, Assembly-CSharp
-        m_MethodName: OnRun
+        m_MethodName: OnSprint
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
