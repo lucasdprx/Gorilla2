@@ -12,6 +12,13 @@ namespace Player.PlayerStates
             base.OnEnter();
             Debug.Log("Entering Idle State");
             player.SetCurrentSpeed(player.walkSpeed);
+            
+        }
+
+        public override void Update()
+        {
+            base.Update();
+            player.rb.linearVelocity = new Vector2(Mathf.Lerp(player.rb.linearVelocity.x, 0, Time.deltaTime * player.decelerationForce), player.rb.linearVelocity.y);
         }
     }
 }

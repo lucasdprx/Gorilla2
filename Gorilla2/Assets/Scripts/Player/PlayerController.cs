@@ -2,6 +2,7 @@ using System;
 using Platformer;
 using Player.PlayerStates;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Player
 {
@@ -13,8 +14,10 @@ namespace Player
         [field: SerializeField, Min(0)] public float crouchSpeed { get; private set; } = 10;
 
         [field: SerializeField, Min(0)] public float jumpForce { get; private set; } = 10;
+        [field: SerializeField, Min(0)] public float decelerationForce { get; private set; } = 10;
 
         [field: SerializeField, Min(0)] public float raycastGroundDistance { get; private set; } = 10;
+        [SerializeField] private float coyoteTime = .2f;
 
         [field: SerializeField] public float moveSpeedThreshold { get; private set; } = 0.1f;
         [SerializeField] private float jumpGravityScale = 2f;
@@ -31,6 +34,9 @@ namespace Player
         public FallState fallState { get; private set; }
         public bool isSprinting { get; private set; }
         public bool isCrouching { get; private set; }
+        public bool isGrounded { get; private set; }
+        private float ungroundTime;
+        [SerializeField] private LayerMask walkableLayerMask;
 
         private void Awake()
         {
@@ -47,24 +53,27 @@ namespace Player
             crouchState = new CrouchState(this);
             jumpingState = new JumpingState(this);
             fallState = new FallState(this);
+
             stateMachine.AddAnyTransition(idleState, new FuncPredicate(ReturnToIdle));
             stateMachine.AddTransition(idleState, walkState,
-                new FuncPredicate(() => IsMoving() && IsGrounded()));
-            stateMachine.AddTransition(walkState, sprintState, new FuncPredicate( () => isSprinting && IsMoving()));
-            stateMachine.AddTransition(idleState, sprintState, new FuncPredicate( () => isSprinting && IsMoving()));
-            stateMachine.AddTransition(sprintState, walkState, new FuncPredicate( () => !isSprinting && IsMoving()));
+                new FuncPredicate(() => IsMoving() && isGrounded));
+            stateMachine.AddTransition(walkState, sprintState, new FuncPredicate(() => isSprinting && IsMoving()));
+            stateMachine.AddTransition(idleState, sprintState, new FuncPredicate(() => isSprinting && IsMoving()));
+            stateMachine.AddTransition(sprintState, walkState, new FuncPredicate(() => !isSprinting && IsMoving()));
             stateMachine.AddTransition(idleState, crouchState, new FuncPredicate(() => IsMoving() && isCrouching));
             stateMachine.AddTransition(walkState, crouchState, new FuncPredicate(() => IsMoving() && isCrouching));
             stateMachine.AddTransition(crouchState, walkState, new FuncPredicate(() => IsMoving() && !isCrouching));
-            stateMachine.AddTransition(jumpingState, idleState, new FuncPredicate(IsGrounded));
+            stateMachine.AddTransition(jumpingState, idleState, new FuncPredicate(() => isGrounded));
+            stateMachine.AddTransition(fallState, idleState, new FuncPredicate(() => isGrounded));
             stateMachine.AddAnyTransition(jumpingState, new FuncPredicate(IsJumping));
             stateMachine.AddAnyTransition(fallState, new FuncPredicate(IsFalling));
+
             stateMachine.SetState(idleState);
         }
 
         private bool ReturnToIdle()
         {
-            return !IsMoving() && IsGrounded();
+            return !IsMoving() && isGrounded;
         }
 
         private bool IsMoving()
@@ -86,7 +95,7 @@ namespace Player
         {
             isSprinting = false;
         }
-        
+
         public void StartCrouch()
         {
             isCrouching = true;
@@ -100,6 +109,17 @@ namespace Player
         private void Update()
         {
             stateMachine.Update();
+            bool isGroundHit = Physics2D.Raycast(transform.position, Vector2.down, raycastGroundDistance,
+                walkableLayerMask);
+            if (isGroundHit)
+            {
+                isGrounded = true;
+                ungroundTime = Time.time;
+            }
+            else if (Time.time > ungroundTime + coyoteTime)
+            {
+                isGrounded = false;
+            }
         }
 
         private void FixedUpdate()
@@ -111,30 +131,34 @@ namespace Player
         {
             return rb.linearVelocity.y > 0.1f;
         }
-        
+
         public bool IsFalling()
         {
             return rb.linearVelocity.y < -0.1f;
         }
 
-        public void StartJump()
+        public bool TryStartJump()
         {
-            if (IsGrounded())
+            if (isGrounded && !IsJumping())
             {
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0); // Stop vertical velocity
                 rb.AddForce(Vector2.up * jumpForce);
                 rb.gravityScale = jumpGravityScale;
+                return true;
             }
+
+            return false;
         }
 
-        public void StopJump()
+        public bool TryStopJump()
         {
-            rb.gravityScale = defaultGravityScale;
-        }
+            if (IsJumping())
+            {
+                rb.gravityScale = defaultGravityScale;
+                return true;
+            }
 
-        public bool IsGrounded()
-        {
-            return Physics2D.Raycast(transform.position, Vector2.down, raycastGroundDistance,
-                LayerMask.GetMask("Ground"));
+            return false;
         }
 
         public void SetMoveInput(Vector2 moveInput)
