@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using Random = UnityEngine.Random;
@@ -25,7 +26,7 @@ public class MapGeneration : MonoBehaviour
     [SerializeField] private float minRangeSpawn;
     private void Awake()
     {
-        GenerateTiles();
+        
     }
 
     private void Start()
@@ -35,6 +36,14 @@ public class MapGeneration : MonoBehaviour
             Debug.LogError("Map tile is not assigned.");
             return;
         }
+
+        StartCoroutine(GenerateMap());
+    }
+
+    private IEnumerator GenerateMap()
+    {
+        GenerateTiles();
+        yield return new WaitForEndOfFrame();
         GeneratePlatforms();
     }
     private void GeneratePlatforms()
@@ -43,17 +52,19 @@ public class MapGeneration : MonoBehaviour
         {
             Vector3 origin = transform.position + new Vector3(Random.Range(0, width), height + 1);
             print(origin);
-            print(Physics2D.Raycast(origin , Vector2.down, Mathf.Infinity).collider);
-            // print(hit.point);
-            // print(hit.collider);
-            // print(origin);
-            // if (!hit)
-            // {
-            //     Debug.LogWarning("No hit detected.");
-            //     return;
-            // }
-            // Vector2 randomPoint = hit.point + new Vector2(Random.Range(0f, 1f), Random.Range(0f, 1f)) * Random.Range(minRangeSpawn, maxRangeSpawn);
-            // print(Physics2D.OverlapBoxAll(randomPoint, (Vector2)oneWayPlatformPrefab.transform.localScale, 0f).Length);
+            RaycastHit2D hit = Physics2D.Raycast(origin, Vector2.down, 10);
+            bool touched = hit.collider != null;
+            print(touched);
+            print(hit.point);
+            print(hit.collider);
+            print(origin);
+            if (!hit)
+            {
+                Debug.LogWarning("No hit detected.");
+                return;
+            }
+            Vector2 randomPoint = hit.point + new Vector2(Random.Range(0f, 1f), Random.Range(0f, 1f)) * Random.Range(minRangeSpawn, maxRangeSpawn);
+            print(Physics2D.OverlapBoxAll(randomPoint, (Vector2)oneWayPlatformPrefab.transform.localScale, 0f).Length);
         }
     }
     private void GenerateTiles()
