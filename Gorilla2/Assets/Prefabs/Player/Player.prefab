@@ -66,7 +66,8 @@ MonoBehaviour:
     m_Bits: 192
   hitBox: {fileID: 3646749008013745527}
   attackCooldown: 0.2
-  comboWindow: 1
+  comboCount: 0
+  <comboWindow>k__BackingField: 1
 --- !u!50 &7967177848163083288
 Rigidbody2D:
   serializedVersion: 5

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Hitable;
 using Platformer;
 using Player.PlayerStates;
 using UnityEngine;
@@ -41,14 +42,15 @@ namespace Player
         private bool isAttacking;
         private List<Collider2D> collidersDamaged = new();
         [SerializeField] private Collider2D hitBox;
-        [SerializeField] private float attackCooldown = 0.5f;
-        private float attackTime;
-        [SerializeField] private float comboWindow = 1;
+        [field: SerializeField] public float attackCooldown { get; private set; } = 0.5f;
         private Coroutine resetAttackCoroutine;
+        public int comboCount;
+        [field: SerializeField] public float comboWindow { get; private set; }
+        [SerializeField] private float knockbackForce;
 
         #region InputBools
 
-        private Dictionary<InputActionType, bool> isInputsPressed;
+        public Dictionary<InputActionType, bool> isInputsPressed { get; private set; }
 
         public void SetInputState(InputActionType actionType, bool state)
         {
@@ -56,13 +58,11 @@ namespace Player
         }
 
         #endregion
-
         public event Action onJump;
 
         private void Awake()
         {
             SetupInputs();
-            attackTime = -attackCooldown;
             playerCollider = GetComponent<Collider2D>();
             rb = GetComponent<Rigidbody2D>();
             rb.gravityScale = defaultGravityScale;
@@ -84,44 +84,15 @@ namespace Player
             }
         }
 
-        public void SetAttackState(bool state)
-        {
-            isAttacking = state;
-        }
-
         private void Start()
         {
-            //stateMachine.AddAnyTransition(idleState, new FuncPredicate(ReturnToIdle));
-            /*stateMachine.AddTransition(idleState, walkState,
-                new FuncPredicate(() => IsMoving() && isGrounded));
-            stateMachine.AddTransition(walkState, idleState, new FuncPredicate(() => !IsMoving()));
-            stateMachine.AddTransition(walkState, sprintState, new FuncPredicate(() => isSprinting && IsMoving()));
-            stateMachine.AddTransition(idleState, sprintState, new FuncPredicate(() => isSprinting && IsMoving()));
-            stateMachine.AddTransition(sprintState, idleState, new FuncPredicate(() => !IsMoving()));
-            stateMachine.AddTransition(sprintState, walkState, new FuncPredicate(() => !isSprinting && IsMoving()));
-            stateMachine.AddTransition(idleState, crouchState, new FuncPredicate(() => isCrouching));
-            stateMachine.AddTransition(crouchState, idleState, new FuncPredicate(() => !isCrouching));
-            stateMachine.AddTransition(walkState, crouchState, new FuncPredicate(() => IsMoving() && isCrouching));
-            stateMachine.AddTransition(crouchState, walkState, new FuncPredicate(() => IsMoving() && !isCrouching));
-            stateMachine.AddTransition(jumpingState, idleState, new FuncPredicate(() => isGrounded));
-            stateMachine.AddTransition(fallState, idleState, new FuncPredicate(() => isGrounded));
-            stateMachine.AddAnyTransition(jumpingState, new FuncPredicate(() => IsJumping() && !isAttacking));
-            stateMachine.AddAnyTransition(fallState, new FuncPredicate(() => IsFalling() && !isAttacking));
-            stateMachine.AddAnyTransition(meleeEntryState, new FuncPredicate(() => shouldAttack));
-            stateMachine.AddTransition(meleeEntryState, idleState, new FuncPredicate(() => !isAttacking));
-            stateMachine.AddTransition(meleeEntryState, meleeComboState, new FuncPredicate(() => shouldAttack));
-            stateMachine.AddTransition(meleeComboState, idleState, new FuncPredicate(() => !isAttacking));
-            stateMachine.AddTransition(meleeComboState, meleeFinishState, new FuncPredicate(() => shouldAttack));
-            stateMachine.AddTransition(meleeFinishState, idleState, new FuncPredicate(() => !isAttacking));*/
-
             Any(idleState, new FuncPredicate(ReturnToIdle));
             At(idleState, walkState, new FuncPredicate(ShouldMove));
             At(walkState, sprintState, new FuncPredicate(() => isInputsPressed[InputActionType.Sprint]));
             At(sprintState, walkState, new FuncPredicate(() => !isInputsPressed[InputActionType.Sprint]));
             At(walkState, crouchState, new FuncPredicate(() => isInputsPressed[InputActionType.Crouch]));
             At(crouchState, walkState, new FuncPredicate(() => !isInputsPressed[InputActionType.Crouch]));
-            Any(jumpingState, new FuncPredicate(() => !isGrounded && !isAttacking));
-            At(jumpingState, idleState , new FuncPredicate(() => isGrounded && !isAttacking));
+            Any(jumpingState, new FuncPredicate(() => !isGrounded && !isAttacking && !isInputsPressed[InputActionType.Attack]));
             Any(meleeState, new FuncPredicate(() => isInputsPressed[InputActionType.Attack]));
             At(meleeState, idleState, new FuncPredicate(() => !isAttacking));
             
@@ -130,7 +101,7 @@ namespace Player
 
         private bool ReturnToIdle()
         {
-            return !ShouldMove() && isGrounded && !isAttacking && !IsJumping() && !IsFalling() && !isInputsPressed[InputActionType.Attack];
+            return !ShouldMove() && isGrounded && !isAttacking && !IsInAir() && !isInputsPressed[InputActionType.Attack];
         }
 
         private void At(BaseState from, BaseState to, IPredicate predicate)
@@ -174,14 +145,9 @@ namespace Player
             stateMachine.FixedUpdate();
         }
 
-        public bool IsJumping()
+        private bool IsInAir()
         {
-            return rb.linearVelocity.y > 0.1f;
-        }
-
-        public bool IsFalling()
-        {
-            return rb.linearVelocity.y < -0.1f;
+            return Mathf.Abs(rb.linearVelocity.y) > 0.1f;
         }
 
         private void Jump()
@@ -194,7 +160,7 @@ namespace Player
 
         public bool TryStartJump()
         {
-            if (isGrounded && !IsJumping())
+            if (isGrounded && !IsInAir())
             {
                 Jump();
                 return true;
@@ -205,7 +171,7 @@ namespace Player
 
         public bool TryStopJump()
         {
-            if (IsJumping())
+            if (IsInAir())
             {
                 rb.gravityScale = defaultGravityScale;
                 return true;
@@ -230,7 +196,6 @@ namespace Player
         {
             isAttacking = true;
             collidersDamaged.Clear();
-            attackTime = Time.time;
             Collider2D[] collidersToDamage = new Collider2D[10];
             ContactFilter2D filter = new ContactFilter2D();
             filter.useTriggers = true;
@@ -239,29 +204,22 @@ namespace Player
             {
                 if (!collidersDamaged.Contains(collidersToDamage[i]))
                 {
-                    TeamComponent hitTeamComponent = collidersToDamage[i].GetComponentInChildren<TeamComponent>();
+                    IHitable hitable = collidersToDamage[i].GetComponentInChildren<IHitable>();
 
                     // Only check colliders with a valid Team Componnent attached
-                    if (hitTeamComponent && hitTeamComponent.teamIndex == TeamIndex.Enemy)
+                    if (hitable != null)
                     {
-                        Debug.Log("Enemy Has Taken Damage");
                         collidersDamaged.Add(collidersToDamage[i]);
+                        hitable.Hit(0, (hitable.rb.transform.position - transform.position).normalized, knockbackForce);
                     }
                 }
             }
-
-            if (resetAttackCoroutine != null)
-            {
-                StopCoroutine(resetAttackCoroutine);
-            }
-
-            resetAttackCoroutine = StartCoroutine(ResetAttack());
         }
 
-        private IEnumerator ResetAttack()
+        public void ResetAttack()
         {
-            yield return new WaitForSecondsRealtime(comboWindow);
             isAttacking = false;
+            comboCount = 0;
         }
     }
 }
