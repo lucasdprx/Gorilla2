@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using Hitable;
 using Platformer;
 using Player.PlayerStates;
 using UnityEngine;
@@ -9,6 +7,7 @@ using static Player.InputManager;
 
 namespace Player
 {
+    [RequireComponent(typeof(PlayerAttack))]
     public class PlayerController : MonoBehaviour
     {
         [field: SerializeField, Min(0)] public float walkSpeed { get; private set; }
@@ -39,14 +38,10 @@ namespace Player
         private float ungroundTime;
         [SerializeField] private LayerMask walkableLayerMask;
         private Collider2D playerCollider;
-        private bool isAttacking;
-        private List<Collider2D> collidersDamaged = new();
-        [SerializeField] private Collider2D hitBox;
         [field: SerializeField] public float attackCooldown { get; private set; } = 0.5f;
         private Coroutine resetAttackCoroutine;
-        public int comboCount;
         [field: SerializeField] public float comboWindow { get; private set; }
-        [SerializeField] private float knockbackForce;
+        private PlayerAttack playerAttack;
 
         #region InputBools
 
@@ -62,6 +57,7 @@ namespace Player
 
         private void Awake()
         {
+            playerAttack = GetComponent<PlayerAttack>();
             SetupInputs();
             playerCollider = GetComponent<Collider2D>();
             rb = GetComponent<Rigidbody2D>();
@@ -92,16 +88,16 @@ namespace Player
             At(sprintState, walkState, new FuncPredicate(() => !isInputsPressed[InputActionType.Sprint]));
             At(walkState, crouchState, new FuncPredicate(() => isInputsPressed[InputActionType.Crouch]));
             At(crouchState, walkState, new FuncPredicate(() => !isInputsPressed[InputActionType.Crouch]));
-            Any(jumpingState, new FuncPredicate(() => !isGrounded && !isAttacking && !isInputsPressed[InputActionType.Attack]));
+            Any(jumpingState, new FuncPredicate(() => !isGrounded && !playerAttack.isAttacking && !isInputsPressed[InputActionType.Attack]));
             Any(meleeState, new FuncPredicate(() => isInputsPressed[InputActionType.Attack]));
-            At(meleeState, idleState, new FuncPredicate(() => !isAttacking));
+            At(meleeState, idleState, new FuncPredicate(() => !playerAttack.isAttacking));
             
             stateMachine.SetState(idleState);
         }
 
         private bool ReturnToIdle()
         {
-            return !ShouldMove() && isGrounded && !isAttacking && !IsInAir() && !isInputsPressed[InputActionType.Attack];
+            return !ShouldMove() && isGrounded && !playerAttack.isAttacking && !IsInAir() && !isInputsPressed[InputActionType.Attack];
         }
 
         private void At(BaseState from, BaseState to, IPredicate predicate)
@@ -190,36 +186,25 @@ namespace Player
             Vector2 newVel = moveInput.normalized * currentSpeed;
             newVel.y = rb.linearVelocity.y;
             rb.linearVelocity = newVel;
+            
+            if(moveInput != Vector2.zero)
+                transform.right = moveInput;
         }
 
         public void Attack()
         {
-            isAttacking = true;
-            collidersDamaged.Clear();
-            Collider2D[] collidersToDamage = new Collider2D[10];
-            ContactFilter2D filter = new ContactFilter2D();
-            filter.useTriggers = true;
-            int colliderCount = Physics2D.OverlapCollider(hitBox, filter, collidersToDamage);
-            for (int i = 0; i < colliderCount; i++)
-            {
-                if (!collidersDamaged.Contains(collidersToDamage[i]))
-                {
-                    IHitable hitable = collidersToDamage[i].GetComponentInChildren<IHitable>();
-
-                    // Only check colliders with a valid Team Componnent attached
-                    if (hitable != null)
-                    {
-                        collidersDamaged.Add(collidersToDamage[i]);
-                        hitable.Hit(0, (hitable.rb.transform.position - transform.position).normalized, knockbackForce);
-                    }
-                }
-            }
+            playerAttack.Attack();
+            Debug.Log("Hit! with combo count: " + playerAttack.comboCount);
         }
 
         public void ResetAttack()
         {
-            isAttacking = false;
-            comboCount = 0;
+            playerAttack.ResetAttack();
+        }
+
+        public void SetAttackDirection(Vector2 attackInput)
+        {
+            playerAttack.SetAttackDirection(attackInput);
         }
     }
 }

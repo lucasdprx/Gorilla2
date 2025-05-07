@@ -34,12 +34,16 @@ namespace Player
             if (ctx.performed)
             {
                 Vector2 moveInput = ctx.ReadValue<Vector2>();
+                Vector2 attackInput = ctx.ReadValue<Vector2>();
+                attackInput.x = 0;
                 moveInput.y = 0;
+                playerController.SetAttackDirection(attackInput);
                 playerController.SetMoveInput(moveInput);
             }
             else if (ctx.canceled)
             {
                 playerController.SetMoveInput(Vector2.zero);
+                playerController.SetAttackDirection(Vector2.zero);
             }
         }
 

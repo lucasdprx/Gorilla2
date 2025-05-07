@@ -22,8 +22,6 @@ namespace Player.PlayerStates
         {
             hitTime = Time.time;
             player.Attack();
-            Debug.Log("Hit! with combo count: " + player.comboCount);
-            player.comboCount++;
         }
 
         public override void Update()
