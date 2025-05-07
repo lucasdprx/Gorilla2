@@ -6,12 +6,22 @@ namespace Player
 {
     public class InputManager : MonoBehaviour
     {
+        public enum InputActionType
+        {
+            Move,
+            Sprint,
+            Crouch,
+            Jump,
+            Attack
+        }
+
         PlayerController playerController;
-        
+
         [SerializeField] private float jumpBufferTime = 0.2f;
 
         private SimpleInputBuffer startJumpBuffer = new();
         private SimpleInputBuffer stopJumpBuffer = new();
+
         private void Awake()
         {
             playerController = GetComponent<PlayerController>();
@@ -37,28 +47,28 @@ namespace Player
         {
             if (ctx.performed)
             {
-                playerController.StartSprint();
+                playerController.SetInputState(InputActionType.Sprint, true);
             }
 
             if (ctx.canceled)
             {
-                playerController.StopSprint();
+                playerController.SetInputState(InputActionType.Sprint, false);
             }
         }
-        
+
         public void OnCrouch(InputAction.CallbackContext ctx)
         {
             if (ctx.performed)
             {
-                playerController.StartCrouch();
+                playerController.SetInputState(InputActionType.Crouch, true);
             }
 
             if (ctx.canceled)
             {
-                playerController.StopCrouch();
+                playerController.SetInputState(InputActionType.Crouch, false);
             }
         }
-        
+
         public void OnJump(InputAction.CallbackContext ctx)
         {
             if (ctx.performed)
@@ -75,14 +85,26 @@ namespace Player
             }
         }
 
+        public void OnAttack(InputAction.CallbackContext ctx)
+        {
+            if (ctx.performed)
+            {
+                playerController.SetInputState(InputActionType.Attack, true);
+            }
+            if (ctx.canceled)
+            {
+                playerController.SetInputState(InputActionType.Attack, false);
+            }
+        }
+
         private void Update()
         {
-            if (startJumpBuffer.hasBuffer && playerController.TryStartJump()) 
+            if (startJumpBuffer.hasBuffer && playerController.TryStartJump())
             {
                 startJumpBuffer.Reset();
             }
-            
-            if (stopJumpBuffer.hasBuffer && !startJumpBuffer.hasBuffer && playerController.TryStopJump()) 
+
+            if (stopJumpBuffer.hasBuffer && !startJumpBuffer.hasBuffer && playerController.TryStopJump())
             {
                 stopJumpBuffer.Reset();
             }

@@ -10,6 +10,7 @@ namespace Player
         [SerializeField] private Color32 fallColor;
         [SerializeField] private Color32 crouchColor;
         [SerializeField] private Color32 walkColor;
+        [SerializeField] private Color32 attackColor;
         SpriteRenderer spriteRenderer;
 
         private void Awake()
@@ -25,9 +26,9 @@ namespace Player
             playerController.sprintState.onStateEnter += () => SetColor(runColor);
             playerController.crouchState.onStateEnter += () => SetColor(crouchColor);
             playerController.jumpingState.onStateEnter += () => SetColor(jumpColor);
-            playerController.fallState.onStateEnter += () => SetColor(fallColor);
+            playerController.meleeState.onStateEnter += () => SetColor(attackColor);
         }
-        
+
         private void SetColor(Color32 color)
         {
             spriteRenderer.color = color;

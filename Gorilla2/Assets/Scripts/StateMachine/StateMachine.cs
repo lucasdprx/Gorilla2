@@ -24,7 +24,7 @@ namespace Platformer {
             current.State?.OnEnter();
         }
 
-        void ChangeState(IState state) {
+        private void ChangeState(IState state) {
             if (state == current.State) return;
             
             var previousState = current.State;
@@ -34,14 +34,16 @@ namespace Platformer {
             nextState?.OnEnter();
             current = nodes[state.GetType()];
         }
+        
+        
 
         ITransition GetTransition() {
             foreach (var transition in anyTransitions)
-                if (transition.Condition.Evaluate())
+                if (transition.condition.Evaluate())
                     return transition;
             
             foreach (var transition in current.Transitions)
-                if (transition.Condition.Evaluate())
+                if (transition.condition.Evaluate())
                     return transition;
             
             return null;
