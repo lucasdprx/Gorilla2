@@ -10,7 +10,7 @@ namespace Player.PlayerStates
         public override void OnEnter()
         {
             base.OnEnter();
-            Debug.Log("Entering Fall State");
+            //Debug.Log("Entering Fall State");
         }
 
         public override void Update()

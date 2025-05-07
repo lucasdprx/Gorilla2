@@ -10,7 +10,7 @@ namespace Player.PlayerStates
         public override void OnEnter()
         {
             base.OnEnter();
-            Debug.Log("Entering Idle State");
+            //Debug.Log("Entering Idle State");
             player.SetCurrentSpeed(player.walkSpeed);
             
         }
