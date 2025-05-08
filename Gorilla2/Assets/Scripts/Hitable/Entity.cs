@@ -22,12 +22,12 @@ namespace Hitable
         protected virtual void Awake()
         {
             rb = GetComponent<Rigidbody2D>();
-            playerId = GameManager.playerIdList.Count;
-            GameManager.AddPlayer(playerId);
         }
 
         protected virtual void Start()
         {
+            playerId = GameManager.playerIdList.Count;
+            GameManager.AddPlayer(playerId);
             health = maxHealth;
         }
 

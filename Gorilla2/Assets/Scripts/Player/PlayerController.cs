@@ -101,6 +101,7 @@ namespace Player
                 new FuncPredicate(() =>
                     !isGrounded && !playerAttack.isAttacking && !isInputsPressed[InputActionType.Attack] &&
                     !hitable.stunned));
+            At(jumpingState, idleState, new FuncPredicate(() => isGrounded));
             Any(meleeState, new FuncPredicate(() => isInputsPressed[InputActionType.Attack] && !hitable.stunned));
             At(meleeState, idleState, new FuncPredicate(() => !playerAttack.isAttacking));
             Any(stuntState, new FuncPredicate(() => hitable.stunned));
