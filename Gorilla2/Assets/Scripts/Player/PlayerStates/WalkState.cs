@@ -11,6 +11,7 @@ namespace Player.PlayerStates
 
         public override void OnEnter()
         {
+            player.Move();
             base.OnEnter();
             player.SetCurrentSpeed(player.walkSpeed);
         }

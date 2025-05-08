@@ -1,4 +1,5 @@
 
+using System;
 using UnityEngine;
 
 namespace Hitable
@@ -8,9 +9,11 @@ namespace Hitable
         Rigidbody2D rb { get; }
         bool isAlive { get; }
         bool isInvincible { get; }
+        bool stunned { get;  }
         float health { get; }
         float maxHealth { get; }
-        void Hit(float damage, Vector3 direction, float force);
+        event Action onHit;
+        void Hit(float damage, Vector3 direction, float force, bool stun = false, float stunTime = 0);
         
         void Die();
     }

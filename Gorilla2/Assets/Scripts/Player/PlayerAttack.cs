@@ -9,9 +9,18 @@ namespace Player
         [SerializeField] private Collider2D hitBox;
         [SerializeField] private float knockbackForce;
         [SerializeField] private float attackRange;
+        [SerializeField] private float stunTime = 1f;
+        [SerializeField] private float dashDistance = 2f;
+
         public bool isAttacking { get; private set; }
         private List<Collider2D> collidersDamaged = new();
         public int comboCount { get; private set; }
+        private Rigidbody2D rb;
+        
+        private void Awake()
+        {
+            rb = GetComponent<Rigidbody2D>();
+        }
 
         public void Attack()
         {
@@ -21,6 +30,10 @@ namespace Player
             ContactFilter2D filter = new ContactFilter2D();
             filter.useTriggers = true;
             int colliderCount = Physics2D.OverlapCollider(hitBox, filter, collidersToDamage);
+            if (comboCount == 2)
+            {
+                DashForward();
+            }
             for (int i = 0; i < colliderCount; i++)
             {
                 if (!collidersDamaged.Contains(collidersToDamage[i]))
@@ -31,15 +44,28 @@ namespace Player
                     if (hitable != null)
                     {
                         collidersDamaged.Add(collidersToDamage[i]);
-                        hitable.Hit(0, (hitable.rb.transform.position - transform.position).normalized, knockbackForce);
+                        if (comboCount == 2)
+                        {
+                            hitable.Hit(0, (hitable.rb.transform.position - transform.position).normalized,
+                                knockbackForce, true, stunTime);
+                        }
+                        else
+                        {
+                            hitable.Hit(0, (hitable.rb.transform.position - transform.position).normalized, 0);
+                        }
                     }
                 }
             }
-            
-            comboCount++;
+
+            comboCount = (comboCount + 1) % 3;
         }
-        
-        
+
+        private void DashForward()
+        {
+            Vector3 dashDirection = transform.TransformDirection(hitBox.transform.localPosition.normalized);
+            Vector2 targetPosition = (Vector2)transform.position + (Vector2)dashDirection * dashDistance;
+            rb.MovePosition(targetPosition);
+        }
 
         public void ResetAttack()
         {

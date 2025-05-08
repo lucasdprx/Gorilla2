@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Hitable;
 using Platformer;
 using Player.PlayerStates;
 using UnityEngine;
@@ -34,6 +35,7 @@ namespace Player
         public CrouchState crouchState { get; private set; }
         public JumpingState jumpingState { get; private set; }
         public MeleeState meleeState { get; private set; }
+        public StuntState stuntState { get; private set; }
         public bool isGrounded { get; private set; }
         private float ungroundTime;
         [SerializeField] private LayerMask walkableLayerMask;
@@ -42,6 +44,7 @@ namespace Player
         private Coroutine resetAttackCoroutine;
         [field: SerializeField] public float comboWindow { get; private set; }
         private PlayerAttack playerAttack;
+        public event Action onStartMove;
 
         #region InputBools
 
@@ -53,13 +56,18 @@ namespace Player
         }
 
         #endregion
+
         public event Action onJump;
+
+        private IHitable hitable;
+        private bool isMoving;
 
         private void Awake()
         {
             playerAttack = GetComponent<PlayerAttack>();
             SetupInputs();
             playerCollider = GetComponent<Collider2D>();
+            hitable = GetComponent<IHitable>();
             rb = GetComponent<Rigidbody2D>();
             rb.gravityScale = defaultGravityScale;
             stateMachine = new StateMachine();
@@ -69,6 +77,7 @@ namespace Player
             crouchState = new CrouchState(this);
             jumpingState = new JumpingState(this);
             meleeState = new MeleeState(this);
+            stuntState = new StuntState(this);
         }
 
         private void SetupInputs()
@@ -88,21 +97,34 @@ namespace Player
             At(sprintState, walkState, new FuncPredicate(() => !isInputsPressed[InputActionType.Sprint]));
             At(walkState, crouchState, new FuncPredicate(() => isInputsPressed[InputActionType.Crouch]));
             At(crouchState, walkState, new FuncPredicate(() => !isInputsPressed[InputActionType.Crouch]));
-            Any(jumpingState, new FuncPredicate(() => !isGrounded && !playerAttack.isAttacking && !isInputsPressed[InputActionType.Attack]));
-            Any(meleeState, new FuncPredicate(() => isInputsPressed[InputActionType.Attack]));
+            Any(jumpingState,
+                new FuncPredicate(() =>
+                    !isGrounded && !playerAttack.isAttacking && !isInputsPressed[InputActionType.Attack] &&
+                    !hitable.stunned));
+            Any(meleeState, new FuncPredicate(() => isInputsPressed[InputActionType.Attack] && !hitable.stunned));
             At(meleeState, idleState, new FuncPredicate(() => !playerAttack.isAttacking));
-            
+            Any(stuntState, new FuncPredicate(() => hitable.stunned));
+            At(stuntState, idleState, new FuncPredicate(() => !hitable.stunned));
+
             stateMachine.SetState(idleState);
         }
 
+
         private bool ReturnToIdle()
         {
-            return !ShouldMove() && isGrounded && !playerAttack.isAttacking && !IsInAir() && !isInputsPressed[InputActionType.Attack];
+            return !ShouldMove() && isGrounded && !playerAttack.isAttacking && !IsInAir() &&
+                   !isInputsPressed[InputActionType.Attack] && !hitable.stunned;
         }
 
         private void At(BaseState from, BaseState to, IPredicate predicate)
         {
             stateMachine.AddTransition(from, to, predicate);
+        }
+
+        public void Decelerate()
+        {
+            rb.linearVelocity = new Vector2(Mathf.Lerp(rb.linearVelocity.x, 0, Time.deltaTime * decelerationForce),
+                rb.linearVelocity.y);
         }
 
         private void Any(BaseState to, IPredicate predicate)
@@ -133,6 +155,20 @@ namespace Player
             else if (Time.time > ungroundTime + coyoteTime)
             {
                 isGrounded = false;
+            }
+
+            if (Mathf.Abs(rb.linearVelocity.x) > moveSpeedThreshold)
+            {
+                if (!isMoving)
+                {
+                    onStartMove?.Invoke();
+                }
+
+                isMoving = true;
+            }
+            else
+            {
+                isMoving = false;
             }
         }
 
@@ -186,8 +222,8 @@ namespace Player
             Vector2 newVel = moveInput.normalized * currentSpeed;
             newVel.y = rb.linearVelocity.y;
             rb.linearVelocity = newVel;
-            
-            if(moveInput != Vector2.zero)
+
+            if (moveInput != Vector2.zero)
                 transform.right = moveInput;
         }
 
