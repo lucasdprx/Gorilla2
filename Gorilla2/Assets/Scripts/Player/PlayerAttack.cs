@@ -11,6 +11,8 @@ namespace Player
         [SerializeField] private float attackRange;
         [SerializeField] private float stunTime = 1f;
         [SerializeField] private float dashDistance = 2f;
+        [SerializeField] private float damage = 10f;
+        [SerializeField] private float bigDamage = 15f;
 
         public bool isAttacking { get; private set; }
         private List<Collider2D> collidersDamaged = new();
@@ -46,12 +48,12 @@ namespace Player
                         collidersDamaged.Add(collidersToDamage[i]);
                         if (comboCount == 2)
                         {
-                            hitable.Hit(0, (hitable.rb.transform.position - transform.position).normalized,
+                            hitable.Hit(bigDamage, (hitable.rb.transform.position - transform.position).normalized,
                                 knockbackForce, true, stunTime);
                         }
                         else
                         {
-                            hitable.Hit(0, (hitable.rb.transform.position - transform.position).normalized, 0);
+                            hitable.Hit(damage, (hitable.rb.transform.position - transform.position).normalized, 0);
                         }
                     }
                 }

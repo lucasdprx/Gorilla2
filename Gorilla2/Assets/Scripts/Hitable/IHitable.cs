@@ -12,6 +12,7 @@ namespace Hitable
         bool stunned { get;  }
         float health { get; }
         float maxHealth { get; }
+        int playerId { get; }
         event Action onHit;
         void Hit(float damage, Vector3 direction, float force, bool stun = false, float stunTime = 0);
         

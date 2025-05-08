@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using Managers;
 using UnityEngine;
 
 namespace Hitable
@@ -12,22 +13,26 @@ namespace Hitable
         public bool stunned { get; protected set; }
         public float health { get; protected set;}
         [field:SerializeField] public float maxHealth { get; private set;}
+        public int playerId { get; private set; }
         public event Action onHit;
+        public event Action onDead;
         private Coroutine stunCoroutine;
 
 
-        private void Awake()
+        protected virtual void Awake()
         {
             rb = GetComponent<Rigidbody2D>();
+            playerId = GameManager.playerIdList.Count;
+            GameManager.AddPlayer(playerId);
         }
 
-        private void Start()
+        protected virtual void Start()
         {
             health = maxHealth;
         }
 
 
-        public void Hit(float damage, Vector3 direction, float force, bool stun = false, float stunTime = 0)
+        public virtual void Hit(float damage, Vector3 direction, float force, bool stun = false, float stunTime = 0)
         {
             if (stun)
             {
@@ -53,9 +58,10 @@ namespace Hitable
             stunned = false;
         }
 
-        public void Die()
+        public virtual void Die()
         {
-            Debug.Log("die");
+            onDead?.Invoke();
+            GameManager.RemovePlayer(playerId);
         }
     }
 }

@@ -1,4 +1,3 @@
-using Hitable;
 using UnityEngine;
 using static Player.ParticleManager.particleType;
 
@@ -15,14 +14,12 @@ namespace Player
         [SerializeField] private Color32 walkColor;
         [SerializeField] private Color32 attackColor;
         [SerializeField] private Color32 stuntColor;
-        private SpriteRenderer spriteRenderer;
-        private IHitable hitable;
+        private SpriteRenderer spriteRenderer;  
         private ParticleManager particleManager;
 
         private void Awake()
         {
             spriteRenderer = GetComponentInChildren<SpriteRenderer>();
-            hitable = GetComponent<IHitable>();
             particleManager = GetComponent<ParticleManager>();
         }
 
@@ -36,7 +33,6 @@ namespace Player
             playerController.jumpingState.onStateEnter += () => SetColor(jumpColor);
             playerController.meleeState.onStateEnter += () => SetColor(attackColor);
             playerController.stuntState.onStateEnter += OnStunt;
-            hitable.onHit += OnHit;
         }
 
         private void onWalk()
@@ -49,12 +45,6 @@ namespace Player
         {
             SetColor(stuntColor);
             CameraShake.instance.Shake(CameraShake.Strength.mediumShake);
-        }
-
-        private void OnHit()
-        {
-            CameraShake.instance.Shake(CameraShake.Strength.weakShake);
-            particleManager.EmitParticle(Hurt);
         }
 
         private void SetColor(Color32 color)

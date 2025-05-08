@@ -26,21 +26,12 @@ public class CameraShake : MonoBehaviour
         {
             Destroy(gameObject);
         }
-    }
 
-    private void Initialise()
-    {
-        //Get a reference to shaking transform if don't already have one
-        if (camShakeTransform == null)
-        {
-            camShakeTransform = Camera.main.transform.parent;
-        }
+        camShakeTransform = transform;
     }
 
     public void Shake(Strength shakeStrength)
     {
-        Initialise();
-
         StopShake();
 
         Vector2 shakeParam = GetDurMag(shakeStrength);
@@ -50,8 +41,6 @@ public class CameraShake : MonoBehaviour
 
     public void Shake(float duration, float magnitude)
     {
-        Initialise();
-
         StopShake();
 
         Vector2 shakeParam = new Vector2(duration, magnitude);
@@ -75,11 +64,11 @@ public class CameraShake : MonoBehaviour
         switch (shakeStrength)
         {
             case Strength.weakShake:
-                return new Vector2(0.10f, 0.02f);    //Configure values here
+                return new Vector2(0.15f, 0.04f);    //Configure values here
             case Strength.mediumShake:
-                return new Vector2(0.18f, 0.04f);    //Configure values here
-            case Strength.strongShake:
                 return new Vector2(0.36f, 0.06f);    //Configure values here
+            case Strength.strongShake:
+                return new Vector2(0.72f, 0.08f);    //Configure values here
             default:
                 return new Vector2(0.10f, 0.02f);
         }
