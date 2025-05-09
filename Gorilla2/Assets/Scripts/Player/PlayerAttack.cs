@@ -13,6 +13,7 @@ namespace Player
         [SerializeField] private float dashDistance = 2f;
         [SerializeField] private float damage = 10f;
         [SerializeField] private float bigDamage = 15f;
+        private Vector3 lastMoveDirection = Vector3.right;
 
         public bool isAttacking { get; private set; }
         private List<Collider2D> collidersDamaged = new();
@@ -64,7 +65,7 @@ namespace Player
 
         private void DashForward()
         {
-            Vector3 dashDirection = transform.TransformDirection(hitBox.transform.localPosition.normalized);
+            Vector3 dashDirection = hitBox.transform.localPosition.normalized;
             Vector2 targetPosition = (Vector2)transform.position + (Vector2)dashDirection * dashDistance;
             rb.MovePosition(targetPosition);
         }
@@ -75,15 +76,19 @@ namespace Player
             comboCount = 0;
         }
 
-        public void SetAttackDirection(Vector2 attackInput)
+        public void SetDirection(Vector2 attackDirection, Vector3 moveDirection)
         {
-            if (attackInput != Vector2.zero)
+            if (attackDirection != Vector2.zero)
             {
-                hitBox.transform.localPosition = attackInput * attackRange;
+                hitBox.transform.localPosition = attackDirection * attackRange;
+                if (moveDirection != Vector3.zero)
+                {
+                    lastMoveDirection = moveDirection;
+                }
             }
             else
             {
-                hitBox.transform.position = transform.position + transform.right;
+                hitBox.transform.localPosition = lastMoveDirection;
             }
         }
     }

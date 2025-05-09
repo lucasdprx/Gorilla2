@@ -54,7 +54,7 @@ namespace Player
         {
             inputEnabled = false;
             playerController.SetMoveInput(Vector2.zero);
-            playerController.SetAttackDirection(Vector2.zero);
+            playerController.SetAttackDirection(Vector2.zero, Vector2.zero);
             playerController.SetInputState(InputActionType.Sprint, false);
             playerController.SetInputState(InputActionType.Crouch, false);
             playerController.SetInputState(InputActionType.Jump, false);
@@ -79,15 +79,14 @@ namespace Player
             {
                 Vector2 moveInput = ctx.ReadValue<Vector2>();
                 Vector2 attackInput = ctx.ReadValue<Vector2>();
-                attackInput.x = 0;
                 moveInput.y = 0;
-                playerController.SetAttackDirection(attackInput);
+                playerController.SetAttackDirection(attackInput, moveInput);
                 playerController.SetMoveInput(moveInput);
             }
             else if (ctx.canceled)
             {
                 playerController.SetMoveInput(Vector2.zero);
-                playerController.SetAttackDirection(Vector2.zero);
+                playerController.SetAttackDirection(Vector2.zero, Vector2.zero);
             }
         }
 

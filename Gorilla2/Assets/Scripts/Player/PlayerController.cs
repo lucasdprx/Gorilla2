@@ -45,6 +45,7 @@ namespace Player
         [field: SerializeField] public float comboWindow { get; private set; }
         private PlayerAttack playerAttack;
         public event Action onStartMove;
+        private SpriteRenderer[] sprites;
 
         #region InputBools
 
@@ -64,6 +65,7 @@ namespace Player
 
         private void Awake()
         {
+            sprites = GetComponentsInChildren<SpriteRenderer>();
             playerAttack = GetComponent<PlayerAttack>();
             SetupInputs();
             playerCollider = GetComponent<Collider2D>();
@@ -224,8 +226,15 @@ namespace Player
             newVel.y = rb.linearVelocity.y;
             rb.linearVelocity = newVel;
 
-            if (moveInput != Vector2.zero)
-                transform.right = moveInput;
+            if (moveInput == Vector2.zero)
+            {
+                return;
+            }
+
+            foreach (SpriteRenderer sprite in sprites)
+            {
+                sprite.flipX = moveInput == Vector2.right;
+            }
         }
 
         public void Attack()
@@ -239,9 +248,9 @@ namespace Player
             playerAttack.ResetAttack();
         }
 
-        public void SetAttackDirection(Vector2 attackInput)
+        public void SetAttackDirection(Vector2 attackInput, Vector2 moveInput)
         {
-            playerAttack.SetAttackDirection(attackInput);
+            playerAttack.SetDirection(attackInput, moveInput);
         }
     }
 }
