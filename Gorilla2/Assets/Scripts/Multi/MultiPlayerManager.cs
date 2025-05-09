@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class MultiPlayerManager : MonoBehaviour
 {
+    public CinemachineTargetGroup cinemachineTargetGroup;
+    
     public readonly static List<PlayerInput> playerInputs = new List<PlayerInput>();
     
     public static event Action<PlayerInput> onPlayerJoinedEvent; 
@@ -32,7 +35,16 @@ public class MultiPlayerManager : MonoBehaviour
         player.deviceRegainedEvent.AddListener(OnPlayerRegained);
         player.deviceLostEvent.AddListener(OnPlayerLeft);
         player.DeactivateInput();
-        player.GetComponent<PlayerInfos>().playerName.text = "P" + (playerInputs.IndexOf(player) + 1);
+        PlayerInfos playerInfos = player.GetComponent<PlayerInfos>();
+        playerInfos.playerName.text = "P" + (playerInputs.IndexOf(player) + 1);
+        
+        CinemachineTargetGroup.Target target = new CinemachineTargetGroup.Target
+        {
+            Object = playerInfos.target,
+            Weight = 1,
+            Radius = 0
+        };
+        cinemachineTargetGroup.Targets.Add(target);
         
         onPlayerJoinedEvent?.Invoke(player);
     }
