@@ -20,7 +20,7 @@ public class PauseMenuManager : MonoBehaviour
     public void LoadScene(int index)
     {
         Time.timeScale = 1f;
-        SceneManager.LoadSceneAsync(index);
+        SceneManager.LoadScene(index);
     }
 
     private void Update()

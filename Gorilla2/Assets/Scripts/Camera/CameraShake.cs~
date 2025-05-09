@@ -20,6 +20,7 @@ public class CameraShake : MonoBehaviour
         if (instance == null)
         {
             instance = GetComponent<CameraShake>();
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
