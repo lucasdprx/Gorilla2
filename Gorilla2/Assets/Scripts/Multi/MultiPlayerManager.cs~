@@ -32,7 +32,6 @@ public class MultiPlayerManager : MonoBehaviour
         player.deviceRegainedEvent.AddListener(OnPlayerRegained);
         player.deviceLostEvent.AddListener(OnPlayerLeft);
         player.DeactivateInput();
-        player.GetComponent<PlayerInfos>().playerName.text = "P" + (playerInputs.IndexOf(player) + 1);
         
         onPlayerJoinedEvent?.Invoke(player);
     }

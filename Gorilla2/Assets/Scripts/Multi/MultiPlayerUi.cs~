@@ -2,10 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 public class MultiPlayerUi : MonoBehaviour
 {
     [SerializeField] private GameObject connectionPanel;
+    [FormerlySerializedAs("playerImages")]
     [SerializeField] private List<Image> playerImagesConnected;
     [SerializeField] private List<GameObject> playerImages;
     [SerializeField] private List<GameObject> playerConnexion;
