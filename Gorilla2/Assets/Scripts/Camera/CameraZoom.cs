@@ -19,7 +19,7 @@ public class CameraZoom : MonoBehaviour
 
     private void Update()
     {
-        if (cinemachineTargetGroup.Targets.Count <= 0)
+        if (!cinemachineTargetGroup || cinemachineTargetGroup.Targets.Count <= 0)
         {
             return;
         }
