@@ -195,7 +195,7 @@ namespace Player
 
         public bool TryStartJump()
         {
-            if (isGrounded)
+            if (isGrounded && !IsInAir())
             {
                 Jump();
                 return true;

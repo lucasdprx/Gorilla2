@@ -1,0 +1,19 @@
+using UnityEngine;
+
+public class FollowCamera : MonoBehaviour
+{
+    private Transform point;
+    private Transform cam;
+    
+    private void Awake()
+    {
+        cam = Camera.main.transform;
+    }
+    
+    private void Update()
+    {
+        Vector3 position = point.position;
+        position.x += cam.position.x - position.x;
+        point.position = position;
+    }
+}

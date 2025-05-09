@@ -9,7 +9,7 @@ public class MultiPlayerManager : MonoBehaviour
 {
     [SerializeField] private List<Transform> spawnPoints;
     
-    public CinemachineTargetGroup cinemachineTargetGroup;
+    public CameraTargetGroup cameraTargetGroup;
     
     public readonly static List<PlayerInput> playerInputs = new List<PlayerInput>();
     
@@ -43,13 +43,7 @@ public class MultiPlayerManager : MonoBehaviour
         PlayerInfos playerInfos = player.GetComponent<PlayerInfos>();
         playerInfos.playerName.text = "P" + (index + 1);
         
-        CinemachineTargetGroup.Target target = new CinemachineTargetGroup.Target
-        {
-            Object = playerInfos.target,
-            Weight = 1,
-            Radius = 0
-        };
-        cinemachineTargetGroup.Targets.Add(target);
+        cameraTargetGroup.targets.Add(player.transform);
         
         onPlayerJoinedEvent?.Invoke(player);
     }

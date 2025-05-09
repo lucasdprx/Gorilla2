@@ -1,42 +1,44 @@
 using System.Linq;
-using Unity.Cinemachine;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class CameraZoom : MonoBehaviour
 {
     [SerializeField] private float speedZoom = 5;
-    [SerializeField] private float minZoom = 10;
-    [SerializeField] private float maxZoom = 150;
+    [SerializeField] private float minSize = 10;
+    [SerializeField] private float maxSize = 20;
+    [SerializeField] private float deadZone = 0.05f;
     
     private Camera mainCamera;
-    private CinemachineTargetGroup cinemachineTargetGroup;
+    private CameraTargetGroup cameraTargetGroup;
 
     private void Start()
     {
-        cinemachineTargetGroup = GetComponent<CinemachineTargetGroup>();
+        cameraTargetGroup = GetComponent<CameraTargetGroup>();
         mainCamera = Camera.main;
     }
 
     private void Update()
     {
-        if (!cinemachineTargetGroup || cinemachineTargetGroup.Targets.Count <= 0)
+        if (cameraTargetGroup.targets.Count == 0)
         {
             return;
         }
-
+        
         float orthographicSize = mainCamera.orthographicSize;
         orthographicSize += AreAllVisible() ? Time.deltaTime * -speedZoom : Time.deltaTime * speedZoom;
-        orthographicSize = Mathf.Clamp(orthographicSize, minZoom, maxZoom);
+        orthographicSize = Mathf.Clamp(orthographicSize, minSize, maxSize);
         mainCamera.orthographicSize = orthographicSize;
     }
 
     private bool IsVisible(Vector3 target)
     {
         Vector3 viewportPos = mainCamera.WorldToViewportPoint(target);
-        return viewportPos.x is >= 0.05f and <= 0.95f && viewportPos.y is >= 0 and <= 1;
+        return viewportPos.x > deadZone && viewportPos.x < 1 - deadZone &&
+               viewportPos.y > deadZone && viewportPos.y < 1 - deadZone;
     }
     private bool AreAllVisible()
     {
-        return cinemachineTargetGroup.Targets.All(target => IsVisible(target.Object.position));
+        return cameraTargetGroup.targets.All(target => IsVisible(target.transform.position));
     }
 }
