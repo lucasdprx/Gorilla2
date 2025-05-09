@@ -1,0 +1,42 @@
+using System.Linq;
+using Unity.Cinemachine;
+using UnityEngine;
+
+public class CameraZoom : MonoBehaviour
+{
+    [SerializeField] private float speedZoom = 5;
+    [SerializeField] private float minZoom = 10;
+    [SerializeField] private float maxZoom = 150;
+    
+    private Camera mainCamera;
+    private CinemachineTargetGroup cinemachineTargetGroup;
+
+    private void Start()
+    {
+        cinemachineTargetGroup = GetComponent<CinemachineTargetGroup>();
+        mainCamera = Camera.main;
+    }
+
+    private void Update()
+    {
+        if (cinemachineTargetGroup.Targets.Count <= 0)
+        {
+            return;
+        }
+
+        float orthographicSize = mainCamera.orthographicSize;
+        orthographicSize += AreAllVisible() ? Time.deltaTime * -speedZoom : Time.deltaTime * speedZoom;
+        orthographicSize = Mathf.Clamp(orthographicSize, minZoom, maxZoom);
+        mainCamera.orthographicSize = orthographicSize;
+    }
+
+    private bool IsVisible(Vector3 target)
+    {
+        Vector3 viewportPos = mainCamera.WorldToViewportPoint(target);
+        return viewportPos.x is >= 0.05f and <= 0.95f && viewportPos.y is >= 0 and <= 1;
+    }
+    private bool AreAllVisible()
+    {
+        return cinemachineTargetGroup.Targets.All(target => IsVisible(target.Object.position));
+    }
+}
