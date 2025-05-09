@@ -35,11 +35,12 @@ public class MultiPlayerManager : MonoBehaviour
         player.deviceRegainedEvent.AddListener(OnPlayerRegained);
         player.deviceLostEvent.AddListener(OnPlayerLeft);
         player.DeactivateInput();
-        player.GetComponent<PlayerInfos>().playerName.text = "P" + (playerInputs.IndexOf(player) + 1);
+        PlayerInfos playerInfos = player.GetComponent<PlayerInfos>();
+        playerInfos.playerName.text = "P" + (playerInputs.IndexOf(player) + 1);
         
         CinemachineTargetGroup.Target target = new CinemachineTargetGroup.Target
         {
-            Object = player.transform,
+            Object = playerInfos.target,
             Weight = 1,
             Radius = 0
         };

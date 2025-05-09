@@ -7,6 +7,8 @@ using UnityEngine.InputSystem;
 
 public class MultiPlayerManager : MonoBehaviour
 {
+    [SerializeField] private List<Transform> spawnPoints;
+    
     public CinemachineTargetGroup cinemachineTargetGroup;
     
     public readonly static List<PlayerInput> playerInputs = new List<PlayerInput>();
@@ -32,11 +34,14 @@ public class MultiPlayerManager : MonoBehaviour
     private void OnPlayerJoined(PlayerInput player)
     {
         playerInputs.Add(player);
+        int index = playerInputs.IndexOf(player);
+        spawnPoints[index].gameObject.SetActive(true);
+        player.transform.position = spawnPoints[index].position;
         player.deviceRegainedEvent.AddListener(OnPlayerRegained);
         player.deviceLostEvent.AddListener(OnPlayerLeft);
         player.DeactivateInput();
         PlayerInfos playerInfos = player.GetComponent<PlayerInfos>();
-        playerInfos.playerName.text = "P" + (playerInputs.IndexOf(player) + 1);
+        playerInfos.playerName.text = "P" + (index + 1);
         
         CinemachineTargetGroup.Target target = new CinemachineTargetGroup.Target
         {
