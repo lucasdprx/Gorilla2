@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Hitable;
 using UnityEngine;
@@ -23,6 +24,11 @@ namespace Player
         private void Awake()
         {
             rb = GetComponent<Rigidbody2D>();
+        }
+
+        private void Start()
+        {
+            isAttacking = false;
         }
 
         public void Attack()

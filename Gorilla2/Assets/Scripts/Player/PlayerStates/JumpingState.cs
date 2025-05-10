@@ -10,13 +10,19 @@ namespace Player.PlayerStates
         public override void OnEnter()
         {
             base.OnEnter();
-            //Debug.Log("Entering Jumping State");
+            player.Jump();
         }
 
         public override void Update()
         {
             base.Update();
             player.Move();
+        }
+
+        public override void OnExit()
+        {
+            base.OnExit();
+            player.StopJump();
         }
     }
 }
