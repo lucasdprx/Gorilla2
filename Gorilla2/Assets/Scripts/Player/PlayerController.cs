@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Hitable;
+using MadeYellow.InputBuffer;
 using Platformer;
 using Player.PlayerStates;
 using UnityEngine;
@@ -25,6 +26,8 @@ namespace Player
         [field: SerializeField] public float moveSpeedThreshold { get; private set; } = 0.1f;
         [SerializeField] private float jumpGravityScale = 2f;
         [SerializeField] private float defaultGravityScale = 5f;
+        [SerializeField] private float jumpBufferTime = 0.2f; // Buffer time for jump inputs
+
         public Rigidbody2D rb { get; private set; }
         public Vector2 moveInput { get; private set; }
         public StateMachine stateMachine { get; private set; }
@@ -36,6 +39,7 @@ namespace Player
         public JumpingState jumpingState { get; private set; }
         public MeleeState meleeState { get; private set; }
         public StuntState stuntState { get; private set; }
+        public FallingState fallingState { get; private set; }
         public bool isGrounded { get; private set; }
         private float ungroundTime;
         [SerializeField] private LayerMask walkableLayerMask;
@@ -46,6 +50,7 @@ namespace Player
         private PlayerAttack playerAttack;
         public event Action onStartMove;
         private SpriteRenderer[] sprites;
+        private SimpleInputBuffer jumpInputBuffer;
 
         #region InputBools
 
@@ -54,6 +59,12 @@ namespace Player
         public void SetInputState(InputActionType actionType, bool state)
         {
             isInputsPressed[actionType] = state;
+
+            // Process jump through buffer
+            if (actionType == InputActionType.Jump && state)
+            {
+                jumpInputBuffer.Set();
+            }
         }
 
         #endregion
@@ -62,6 +73,7 @@ namespace Player
 
         private IHitable hitable;
         private bool isMoving;
+        [SerializeField] private Collider2D groundCollider;
 
         private void Awake()
         {
@@ -80,6 +92,10 @@ namespace Player
             jumpingState = new JumpingState(this);
             meleeState = new MeleeState(this);
             stuntState = new StuntState(this);
+            fallingState = new FallingState(this);
+
+            // Create jump input buffer
+            jumpInputBuffer = new SimpleInputBuffer(jumpBufferTime);
         }
 
         private void SetupInputs()
@@ -99,11 +115,8 @@ namespace Player
             At(sprintState, walkState, new FuncPredicate(() => !isInputsPressed[InputActionType.Sprint]));
             At(walkState, crouchState, new FuncPredicate(() => isInputsPressed[InputActionType.Crouch]));
             At(crouchState, walkState, new FuncPredicate(() => !isInputsPressed[InputActionType.Crouch]));
-            Any(jumpingState,
-                new FuncPredicate(() =>
-                    !isGrounded && !playerAttack.isAttacking && !isInputsPressed[InputActionType.Attack] &&
-                    !hitable.stunned));
-            At(jumpingState, idleState, new FuncPredicate(() => isGrounded));
+            Any(jumpingState, new FuncPredicate(ShouldJump));
+            Any(fallingState, new FuncPredicate(IsFalling));
             Any(meleeState, new FuncPredicate(() => isInputsPressed[InputActionType.Attack] && !hitable.stunned));
             At(meleeState, idleState, new FuncPredicate(() => !playerAttack.isAttacking));
             Any(stuntState, new FuncPredicate(() => hitable.stunned));
@@ -112,11 +125,41 @@ namespace Player
             stateMachine.SetState(idleState);
         }
 
+        private bool ShouldJump()
+        {
+            bool canJump = isGrounded && !playerAttack.isAttacking;
+
+            if (canJump && jumpInputBuffer.hasBuffer)
+            {
+                jumpInputBuffer.Reset();
+                return true;
+            }
+
+            return canJump && isInputsPressed[InputActionType.Jump];
+        }
+
+        private bool IsFalling()
+        {
+            return rb.linearVelocity.y < -.1f;
+        }
 
         private bool ReturnToIdle()
         {
-            return !ShouldMove() && isGrounded && !playerAttack.isAttacking && !IsInAir() &&
-                   !isInputsPressed[InputActionType.Attack] && !hitable.stunned;
+            bool result = !ShouldMove() && isGrounded && !playerAttack.isAttacking &&
+                          !isInputsPressed[InputActionType.Attack] && !hitable.stunned && !IsFalling() &&
+                          !isInputsPressed[InputActionType.Jump];
+
+            /*if (!result)
+            {
+                Debug.Log($"ReturnToIdle condition failed: " +
+                          $"!ShouldMove()={(!ShouldMove())}, isGrounded={isGrounded}, " +
+                          $"!playerAttack.isAttacking={(!playerAttack.isAttacking)}, " +
+                          $"!isInputsPressed[InputActionType.Attack]={(!isInputsPressed[InputActionType.Attack])}, " +
+                          $"!hitable.stunned={(!hitable.stunned)}, !IsFalling()={(!IsFalling())}, " +
+                          $"!isInputsPressed[InputActionType.Jump]={(!isInputsPressed[InputActionType.Jump])}");
+            }*/
+
+            return result;
         }
 
         private void At(BaseState from, BaseState to, IPredicate predicate)
@@ -148,8 +191,8 @@ namespace Player
         private void Update()
         {
             stateMachine.Update();
-            bool isGroundHit = Physics2D.CircleCast(transform.position, playerCollider.bounds.extents.x,
-                Vector2.down, raycastGroundDistance, walkableLayerMask);
+
+            bool isGroundHit = groundCollider.IsTouchingLayers(walkableLayerMask);
             if (isGroundHit)
             {
                 isGrounded = true;
@@ -180,12 +223,7 @@ namespace Player
             stateMachine.FixedUpdate();
         }
 
-        private bool IsInAir()
-        {
-            return Mathf.Abs(rb.linearVelocity.y) > 0.1f;
-        }
-
-        private void Jump()
+        public void Jump()
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0); // Stop vertical velocity
             rb.AddForce(Vector2.up * jumpForce);
@@ -193,26 +231,10 @@ namespace Player
             onJump?.Invoke();
         }
 
-        public bool TryStartJump()
+        public void StopJump()
         {
-            if (isGrounded && !IsInAir())
-            {
-                Jump();
-                return true;
-            }
-
-            return false;
-        }
-
-        public bool TryStopJump()
-        {
-            if (IsInAir())
-            {
-                rb.gravityScale = defaultGravityScale;
-                return true;
-            }
-
-            return false;
+            rb.gravityScale = defaultGravityScale;
+            SetInputState(InputActionType.Jump, false);
         }
 
         public void SetMoveInput(Vector2 moveInput)
