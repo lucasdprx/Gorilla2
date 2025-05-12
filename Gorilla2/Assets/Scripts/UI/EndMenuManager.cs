@@ -1,5 +1,7 @@
 using System;
 using Managers;
+using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,12 +12,14 @@ namespace UI
         private CanvasGroup endMenuPanel;
         [SerializeField] private Button restartButton;
         [SerializeField] private Button exitButton;
+        [SerializeField] private TextMeshProUGUI winText;
 
         private void Awake()
         {
             endMenuPanel = GetComponent<CanvasGroup>();
             endMenuPanel.alpha = 0;
             endMenuPanel.interactable = false;
+            endMenuPanel.blocksRaycasts = false;
         }
 
         private void Start()
@@ -37,6 +41,9 @@ namespace UI
 
         private void OnGameFinished()
         {
+            int winnerId = GameManager.playerIdList.Last();
+            string winnerName = MultiPlayerManager.playerInputs[winnerId].GetComponent<PlayerInfos>().playerName.text;
+            winText.text = winnerName + " wins the game !!!";
             ShowEndMenu();
         }
 
@@ -44,6 +51,7 @@ namespace UI
         {
             endMenuPanel.alpha = 1;
             endMenuPanel.interactable = true;
+            endMenuPanel.blocksRaycasts = true;
         }
 
         private void OnDestroy()

@@ -59,7 +59,7 @@ public class MultiPlayerManager : MonoBehaviour
 
     public static void SetAllPlayerInputActive(bool active)
     {
-        foreach (PlayerInput playerInput in playerInputs)
+        foreach (PlayerInput playerInput in playerInputs.Where(playerInput => playerInput.enabled))
         {
             if (active)
             {

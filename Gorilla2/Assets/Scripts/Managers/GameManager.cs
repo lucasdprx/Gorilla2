@@ -8,19 +8,13 @@ namespace Managers
 {
     public class GameManager : MonoBehaviour
     {
-        public static HashSet<int> playerIdList { get; private set; } = new();
+        public static HashSet<int> playerIdList { get; } = new HashSet<int>();
         public static void AddPlayer(int playerId) => playerIdList.Add(playerId);
         public static event Action onGameFinished;
-        [SerializeField] private List<int> playerIdListToTest = new();
 
         private void Awake()
         {
             playerIdList.Clear();
-        }
-
-        private void Update()
-        {
-            playerIdListToTest = playerIdList.ToList();
         }
 
         public static void RemovePlayer(int playerId)

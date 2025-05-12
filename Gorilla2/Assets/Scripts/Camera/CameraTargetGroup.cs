@@ -48,7 +48,7 @@ public class CameraTargetGroup : MonoBehaviour
         if (targets.Count == 0)
             return;
 
-        Vector3 center = targets.Aggregate(Vector3.zero, (current, target) => current + target.position);
+        Vector3 center = targets.Where(target => !target).Aggregate(Vector3.zero, (current, target) => current + target.position);
         center /= targets.Count;
 
         Vector3 position = cameraTransform.position;

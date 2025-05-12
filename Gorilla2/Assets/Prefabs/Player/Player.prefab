@@ -14,12 +14,13 @@ GameObject:
   - component: {fileID: 8258229955478270394}
   - component: {fileID: 2261552218100104658}
   - component: {fileID: 3704719296693661988}
-  - component: {fileID: 4367333425994741073}
   - component: {fileID: 7904666912692162596}
   - component: {fileID: 151532152361235902}
   - component: {fileID: 2243500750900155180}
   - component: {fileID: 3519327255957293}
   - component: {fileID: 4959652489282600051}
+  - component: {fileID: 1815932051531927869}
+  - component: {fileID: 8209590007019326571}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -319,19 +320,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   jumpBufferTime: 0.2
---- !u!114 &4367333425994741073
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 437796895635696757}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3f2807daee74451b9127a2c66567c601, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  <maxHealth>k__BackingField: 100
 --- !u!114 &7904666912692162596
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -431,6 +419,33 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerName: {fileID: 1990006653692741966}
   target: {fileID: 8693228836280158581}
+--- !u!114 &1815932051531927869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 437796895635696757}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10ecbe6f4f994c54997e08d444aaeb07, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  deathEffectPrefab: {fileID: 3096819455727749394, guid: 2012a137e9780dd4c974c6060090b5de, type: 3}
+  forceEffect: 250
+--- !u!114 &8209590007019326571
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 437796895635696757}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66e852fac63544248d943908aac6e9a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <maxHealth>k__BackingField: 100
 --- !u!1 &491954462125945484
 GameObject:
   m_ObjectHideFlags: 0

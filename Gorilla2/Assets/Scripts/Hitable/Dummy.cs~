@@ -8,7 +8,6 @@ namespace Hitable
         private Collider2D dummyCollider;
         private SpriteRenderer spriteRenderer;
         private PlayerInput playerInput;
-        private PlayerInfos playerInfos;
 
         protected override void Awake()
         {
@@ -16,7 +15,6 @@ namespace Hitable
             dummyCollider = GetComponent<Collider2D>();
             spriteRenderer = GetComponentInChildren<SpriteRenderer>();
             playerInput = GetComponent<PlayerInput>();
-            playerInfos = GetComponent<PlayerInfos>();
         }
 
         public override void Die()
@@ -27,7 +25,6 @@ namespace Hitable
             dummyCollider.enabled = false;
             rb.simulated = false;
             playerInput.enabled = false;
-            playerInfos.playerName.gameObject.SetActive(false);
         }
     }
 }

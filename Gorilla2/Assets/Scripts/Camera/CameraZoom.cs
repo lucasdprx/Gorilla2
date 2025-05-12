@@ -39,6 +39,6 @@ public class CameraZoom : MonoBehaviour
     }
     private bool AreAllVisible()
     {
-        return cameraTargetGroup.targets.All(target => IsVisible(target.transform.position));
+        return cameraTargetGroup.targets.Where(target => !target).All(target => IsVisible(target.transform.position));
     }
 }

@@ -1,0 +1,32 @@
+using Hitable;
+using UnityEngine;
+using Random = UnityEngine.Random;
+
+public class DeathVFX : MonoBehaviour
+{
+    [SerializeField] private GameObject deathEffectPrefab;
+    [SerializeField] private float forceEffect = 3f;
+    
+    private Rigidbody2D[] rigidbodies = new Rigidbody2D[10];
+    private Entity entity;
+    private void Awake()
+    {
+        entity = GetComponent<Entity>();
+        entity.onDead += OnDead;
+    }
+    private void OnDead()
+    {
+        if (!deathEffectPrefab)
+        {
+            return;
+        }
+        
+        GameObject deathEffect = Instantiate(deathEffectPrefab, transform.position, Quaternion.identity);
+        rigidbodies = deathEffect.GetComponentsInChildren<Rigidbody2D>();
+        foreach (Rigidbody2D rb in rigidbodies)
+        {
+            Vector2 force = new Vector2(Random.Range(-1f, 1f) * forceEffect , Random.Range(0, 3f) * forceEffect);
+            rb.AddForce(force);
+        }
+    }
+}
