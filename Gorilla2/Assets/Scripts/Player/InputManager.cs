@@ -19,11 +19,18 @@ namespace Player
         }
 
         PlayerController playerController;
+
+        [SerializeField] private float jumpBufferTime = 0.2f;
+
+        private SimpleInputBuffer startJumpBuffer = new();
+        private SimpleInputBuffer stopJumpBuffer = new();
         private bool inputEnabled = true;
 
         private void Awake()
         {
             playerController = GetComponent<PlayerController>();
+            startJumpBuffer = new SimpleInputBuffer(jumpBufferTime);
+            stopJumpBuffer = new SimpleInputBuffer(jumpBufferTime);
         }
 
         private void Start()
@@ -52,6 +59,7 @@ namespace Player
             playerController.SetInputState(InputActionType.Crouch, false);
             playerController.SetInputState(InputActionType.Jump, false);
             playerController.SetInputState(InputActionType.Attack, false);
+            startJumpBuffer.Reset();
         }
 
         #endregion
@@ -124,12 +132,15 @@ namespace Player
             }
             if (ctx.performed)
             {
-                playerController.SetInputState(InputActionType.Jump, true);
+                startJumpBuffer.Reset();
+                stopJumpBuffer.Reset();
+                startJumpBuffer.Set();
             }
 
             if (ctx.canceled)
             {
-                playerController.SetInputState(InputActionType.Jump, false);
+                stopJumpBuffer.Reset();
+                stopJumpBuffer.Set();
             }
         }
 
@@ -156,5 +167,18 @@ namespace Player
         }
 
         #endregion
+
+        private void Update()
+        {
+            if (startJumpBuffer.hasBuffer && playerController.TryStartJump())
+            {
+                startJumpBuffer.Reset();
+            }
+
+            if (stopJumpBuffer.hasBuffer && !startJumpBuffer.hasBuffer && playerController.TryStopJump())
+            {
+                stopJumpBuffer.Reset();
+            }
+        }
     }
 }

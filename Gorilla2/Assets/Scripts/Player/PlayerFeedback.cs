@@ -31,7 +31,6 @@ namespace Player
             playerController.sprintState.onStateEnter += () => SetColor(runColor);
             playerController.crouchState.onStateEnter += () => SetColor(crouchColor);
             playerController.jumpingState.onStateEnter += () => SetColor(jumpColor);
-            playerController.fallingState.onStateEnter += () => SetColor(fallColor);
             playerController.meleeState.onStateEnter += () => SetColor(attackColor);
             playerController.stuntState.onStateEnter += OnStunt;
         }
