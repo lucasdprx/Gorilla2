@@ -1147,7 +1147,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 8347187063342799194}
         m_TargetAssemblyTypeName: SettingsMenuManager, Assembly-CSharp
-        m_MethodName: SetVolumeSFX
+        m_MethodName: SetVolumeSfx
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3138,10 +3138,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87712c859f7531a469861e9ba43d0b4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  audioMixer: {fileID: 0}
+  audioMixer: {fileID: 24100000, guid: d0a18e37422d2e047969592d251b0b17, type: 2}
   sliderGeneral: {fileID: 6535981318501495642}
   sliderMusic: {fileID: 1622914871082283569}
-  sliderSFX: {fileID: 4184229520054450218}
+  sliderSfx: {fileID: 4184229520054450218}
   dropdownResolution: {fileID: 8908462036605107567}
   toggleFullScreen: {fileID: 6102983778227527150}
 --- !u!1 &7438640970916645782
