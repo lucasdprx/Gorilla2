@@ -9,7 +9,7 @@ public static class SettingsKeys
 {
     public const string General = "General";
     public const string Music = "Music";
-    public const string SFX = "SFX";
+    public const string Sfx = "SFX";
     public const string ResolutionIndex = "ResolutionIndex";
     public const string FullScreen = "FullScreen";
 }
@@ -32,7 +32,7 @@ public class SettingsMenuManager : MonoBehaviour
     
     private void Start()
     {
-        if (dropdownResolution != null)
+        if (dropdownResolution is not null)
         {
             dropdownResolution.ClearOptions();
             AddResolutionOnDropdown(dropdownResolution);
@@ -44,7 +44,7 @@ public class SettingsMenuManager : MonoBehaviour
             Screen.fullScreen = PlayerPrefs.GetInt(SettingsKeys.FullScreen) == 1;
         }
         
-        if (toggleFullScreen != null)
+        if (toggleFullScreen is not null)
         {
             toggleFullScreen.isOn = Screen.fullScreen;
         }
@@ -53,7 +53,7 @@ public class SettingsMenuManager : MonoBehaviour
     {
         InitAudioSettings(sliderGeneral, SettingsKeys.General);
         InitAudioSettings(sliderMusic, SettingsKeys.Music);
-        InitAudioSettings(sliderSFX, SettingsKeys.SFX);
+        InitAudioSettings(sliderSFX, SettingsKeys.Sfx);
     }
 
     public void SetFullScreen(bool isFullScreen)
@@ -72,7 +72,7 @@ public class SettingsMenuManager : MonoBehaviour
     
     public void SetVolumeSFX(float volume)
     {
-        SetVolume(SettingsKeys.SFX, volume);
+        SetVolume(SettingsKeys.Sfx, volume);
     }
     
     public void SetVolumeMusic(float volume)
@@ -82,7 +82,7 @@ public class SettingsMenuManager : MonoBehaviour
     
     private void SetVolume(string key, float volume)
     {
-        if (audioMixer == null)
+        if (audioMixer is null)
         {
             Debug.LogWarning("AudioMixer is not assigned in the inspector.");
             return;
@@ -107,7 +107,7 @@ public class SettingsMenuManager : MonoBehaviour
     
     private static void InitAudioSettings(Slider slider, string key)
     {
-        if (slider != null && PlayerPrefs.HasKey(key))
+        if (slider is not null && PlayerPrefs.HasKey(key))
         {
             slider.value = PlayerPrefs.GetFloat(key);
         }
