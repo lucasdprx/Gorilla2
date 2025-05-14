@@ -7,15 +7,6 @@ using UnityEngine.UI;
 
 namespace UI
 {
-    public static class SettingsKeys
-    {
-        public const string General = "General";
-        public const string Music = "Music";
-        public const string Sfx = "SFX";
-        public const string ResolutionIndex = "ResolutionIndex";
-        public const string FullScreen = "FullScreen";
-    }
-
     public class SettingsMenuManager : MonoBehaviour
     {
         [Header("Audio")]
@@ -38,18 +29,23 @@ namespace UI
             {
                 dropdownResolution.ClearOptions();
                 AddResolutionOnDropdown(dropdownResolution);
-                dropdownResolution.value = PlayerPrefs.HasKey(SettingsKeys.ResolutionIndex) ? PlayerPrefs.GetInt(SettingsKeys.ResolutionIndex) : dropdownResolution.options.Count - 1;
+                dropdownResolution.value = SettingsKeys.HasKey(SettingsKeys.ResolutionIndex) 
+                    ? SettingsKeys.GetInt(SettingsKeys.ResolutionIndex) : dropdownResolution.options.Count - 1;
             }
 
-            if (PlayerPrefs.HasKey(SettingsKeys.FullScreen))
+            if (SettingsKeys.HasKey(SettingsKeys.FullScreen))
             {
-                Screen.fullScreen = PlayerPrefs.GetInt(SettingsKeys.FullScreen) == 1;
+                Screen.fullScreen = SettingsKeys.GetInt(SettingsKeys.FullScreen) == 1;
             }
         
             if (toggleFullScreen is not null)
             {
                 toggleFullScreen.isOn = Screen.fullScreen;
             }
+
+            sliderGeneral?.onValueChanged.AddListener(SetVolumeGeneral);
+            sliderMusic?.onValueChanged.AddListener(SetVolumeMusic);
+            sliderSfx?.onValueChanged.AddListener(SetVolumeSfx);
         }
         private void OnEnable()
         {
@@ -61,23 +57,22 @@ namespace UI
         public void SetFullScreen(bool isFullScreen)
         {
             Screen.fullScreen = isFullScreen;
-            PlayerPrefs.SetInt(SettingsKeys.FullScreen, isFullScreen ? 1 : 0);
-            PlayerPrefs.Save();
+            SettingsKeys.SetInt(SettingsKeys.FullScreen, isFullScreen ? 1 : 0);
         }
 
         #region Audio
-    
-        public void SetVolumeGeneral(float volume)
+
+        private void SetVolumeGeneral(float volume)
         {
             SetVolume(SettingsKeys.General, volume);
         }
-    
-        public void SetVolumeSfx(float volume)
+
+        private void SetVolumeSfx(float volume)
         {
             SetVolume(SettingsKeys.Sfx, volume);
         }
-    
-        public void SetVolumeMusic(float volume)
+
+        private void SetVolumeMusic(float volume)
         {
             SetVolume(SettingsKeys.Music, volume);
         }
@@ -96,23 +91,25 @@ namespace UI
                 return;
             }
         
-            if (volume is < -80f or > 20f)
+            if (volume is < -80.0f or > 20.0f)
             {
                 Debug.LogWarning($"Volume value {volume} is out of range. It must be between -80 and 20.");
                 return;
             }
 
             audioMixer.SetFloat(key, volume);
-            PlayerPrefs.SetFloat(key, volume);
-            PlayerPrefs.Save();
+            SettingsKeys.SetFloat(key, volume);
         }
     
-        private static void InitAudioSettings(Slider slider, string key)
+        private void InitAudioSettings(Slider slider, string key)
         {
-            if (slider is not null && PlayerPrefs.HasKey(key))
+            if (slider is null || !SettingsKeys.HasKey(key) || audioMixer is null)
             {
-                slider.value = PlayerPrefs.GetFloat(key);
+                return;
             }
+            
+            slider.value = SettingsKeys.GetFloat(key);
+            audioMixer.SetFloat(key, slider.value);
         }
     
         #endregion
@@ -142,8 +139,7 @@ namespace UI
             Resolution resolution = resolutions[resolutionIndex];
             Screen.SetResolution(resolution.width, resolution.height, Screen.fullScreen);
         
-            PlayerPrefs.SetInt(SettingsKeys.ResolutionIndex, resolutionIndex);
-            PlayerPrefs.Save();
+            SettingsKeys.SetInt(SettingsKeys.ResolutionIndex, resolutionIndex);
         }
     
         #endregion
